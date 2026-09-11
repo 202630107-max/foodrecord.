@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foodrecord - 똑똑한 식자재 & 유통기한 관리</title>
+    <style>
+        /* 기본 스타일 초기화 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
+
+        :root {
+            --primary-color: #2ECC71; /* 메인 초록색 */
+            --primary-dark: #27AE60;
+            --warning-color: #E67E22; /* 임박 주황색 */
+            --danger-color: #E74C3C; /* 경고 빨간색 */
+            --bg-color: #F8F9FA;
+            --card-bg: #FFFFFF;
+            --text-color: #333333;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            gap: 2rem;
+        }
+
+        /* Hero / Process Section */
+        .process-section {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+        }
+
+        .process-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .step-card {
+            background: #F1F8F5;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .step-badge {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 0.3rem;
+        }
+
+        /* Form Section */
+        .form-section {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+        }
+
+        .form-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) 100px;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-field label {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        input, select {
+            padding: 0.7rem;
+            border: 1px solid #DDD;
+            border-radius: 6px;
+            outline: none;
+            font-size: 0.95rem;
+        }
+
+        input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .btn-add {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .btn-add:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .ai-notice {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: #666;
+            background: #EBF5FB;
+            padding: 0.5rem 0.8rem;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        /* Food List Section */
+        .list-section {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+        }
+
+        .food-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .food-card {
+            border: 1px solid #EEE;
+            border-radius: 8px;
+            padding: 1rem;
+            position: relative;
+            background: #FFF;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* 강조 표시 (직접 고민한 스타일 규칙 적용) */
+        .food-card.status-safe { border-top: 4px solid var(--primary-color); }
+        .food-card.status-warning { border-top: 4px solid var(--warning-color); background-color: #FFFDF9; }
+        .food-card.status-danger { border-top: 4px solid var(--danger-color); background-color: #FFF5F5; }
+
+        .food-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .food-date {
+            font-size: 0.85rem;
+            color: #666;
+            margin: 0.5rem 0;
+        }
+
+        .d-day-badge {
+            align-self: flex-start;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-safe .d-day-badge { background: #E8F8F5; color: var(--primary-dark); }
+        .status-warning .d-day-badge { background: #FEF5E7; color: var(--warning-color); }
+        .status-danger .d-day-badge { background: #FDEDEC; color: var(--danger-color); }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        /* AI Recipe Section */
+        .recipe-section {
+            background: linear-gradient(135deg, #2ECC71 0%, #1ABC9C 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+
+        .btn-recipe {
+            background: white;
+            color: var(--primary-dark);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .recipe-result {
+            margin-top: 1rem;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .form-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            🍏 Foodrecord
+        </div>
+        <div style="font-size: 0.9rem; color: #666;">내 손안의 식자재 매니저</div>
+    </header>
+
+    <container>
+        <!-- 서비스 구조 안내 -->
+        <section class="process-section">
+            <div class="process-title">서비스 이용 프로세스</div>
+            <div class="steps">
+                <div class="step-card">
+                    <div class="step-badge">STEP 1</div>
+                    <strong>유통기한 입력</strong>
+                    <p style="font-size:0.85rem; color:#555; margin-top:4px;">식재료를 등록하면 유통기한이 기록됩니다.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-badge">STEP 2</div>
+                    <strong>임박 알림 및 가시화</strong>
+                    <p style="font-size:0.85rem; color:#555; margin-top:4px;">유통기한이 가까워지면 색상과 디데이로 강조됩니다.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-badge">STEP 3</div>
+                    <strong>AI 맞춤 레시피</strong>
+                    <p style="font-size:0.85rem; color:#555; margin-top:4px;">유통기한 임박 재료 위주로 최적의 레시피를 추천합니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 식재료 입력 폼 -->
+        <section class="form-section">
+            <h2 style="font-size: 1.2rem; margin-bottom: 1rem;">식재료 등록하기</h2>
+            <form id="food-form" class="form-group">
+                <div class="input-field">
+                    <label for="food-name">식재료명</label>
+                    <input type="text" id="food-name" placeholder="예: 우유, 계란, 두부" required>
+                </div>
+                <div class="input-field">
+                    <label for="expire-date">유통기한(소비기한)</label>
+                    <input type="date" id="expire-date" required>
+                </div>
+                <button type="submit" class="btn-add">등록</button>
+            </form>
+            <div class="ai-notice">
+                💡 <b>AI 기능 확장 가능:</b> 영수증/식재료 사진 촬영 시 NLP/CV 모델이 이름과 유통기한을 자동 입력합니다.
+            </div>
+        </section>
+
+        <!-- 식재료 리스트 (가시화 기능) -->
+        <section class="list-section">
+            <h2 style="font-size: 1.2rem;">보관 중인 식자재 목록</h2>
+            <div class="food-grid" id="food-list">
+                <!-- 자바스크립트로 동적 추가되는 영역 -->
+            </div>
+        </section>
+
+        <!-- AI 레시피 연동 -->
+        <section class="recipe-section">
+            <h2>🤖 AI 맞춤형 레시피 추천</h2>
+            <p style="margin-top: 5px; font-size: 0.95rem;">냉장고 속 유통기한이 임박한 식재료를 기반으로 버려지는 음식을 줄이는 레시피를 추천해 드립니다.</p>
+            <button class="btn-recipe" onclick="generateRecipe()">레시피 추천받기</button>
+            
+            <div class="recipe-result" id="recipe-result">
+                <!-- AI 레시피 결과가 나올 영역 -->
+            </div>
+        </section>
+    </container>
+
+    <script>
+        // 초기 샘플 데이터
+        let foodItems = [
+            { id: 1, name: '우유', date: getRelativeDate(-1) }, // 기한 지남
+            { id: 2, name: '두부', date: getRelativeDate(2) },  // 임박 (2일 남음)
+            { id: 3, name: '계란', date: getRelativeDate(10) }  // 여유 (10일 남음)
+        ];
+
+        // 헬퍼 함수: 오늘 날짜 기준으로 +/- 일 계산
+        function getRelativeDate(days) {
+            const d = new Date();
+            d.setDate(d.getDate() + days);
+            return d.toISOString().split('T')[0];
+        }
+
+        // 날짜 차이 계산 (D-Day)
+        function calculateDDay(targetDateStr) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const target = new Date(targetDateStr);
+            target.setHours(0, 0, 0, 0);
+
+            const diffTime = target - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+
+        // 리스트 렌더링 함수
+        function renderFoodList() {
+            const listContainer = document.getElementById('food-list');
+            listContainer.innerHTML = '';
+
+            if (foodItems.length === 0) {
+                listContainer.innerHTML = '<p style="color:#888; grid-column: 1/-1;">등록된 식재료가 없습니다.</p>';
+                return;
+            }
+
+            // D-day 순 정렬 (급한 것부터 앞으로)
+            foodItems.sort((a, b) => calculateDDay(a.date) - calculateDDay(b.date));
+
+            foodItems.forEach(item => {
+                const dDay = calculateDDay(item.date);
+                let statusClass = 'status-safe';
+                let dDayText = `D-${dDay}`;
+
+                // 상태 구분 기준 (사용자 정의 아이디어 구현)
+                if (dDay < 0) {
+                    statusClass = 'status-danger';
+                    dDayText = `기한 만료 (D+${Math.abs(dDay)})`;
+                } else if (dDay <= 3) {
+                    statusClass = 'status-warning';
+                    dDayText = dDay === 0 ? 'D-Day (오늘까지)' : `D-${dDay} (임박)`;
+                }
+
+                const cardHtml = `
+                    <div class="food-card ${statusClass}">
+                        <button class="btn-delete" onclick="deleteItem(${item.id})">✕</button>
+                        <div>
+                            <div class="d-day-badge">${dDayText}</div>
+                            <div class="food-name">${item.name}</div>
+                        </div>
+                        <div class="food-date">유통기한: ${item.date}</div>
+                    </div>
+                `;
+                listContainer.innerHTML += cardHtml;
+            });
+        }
+
+        // 식재료 추가 이벤트
+        document.getElementById('food-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('food-name');
+            const dateInput = document.getElementById('expire-date');
+
+            const newItem = {
+                id: Date.now(),
+                name: nameInput.value,
+                date: dateInput.value
+            };
+
+            foodItems.push(newItem);
+            renderFoodList();
+
+            // 폼 초기화
+            nameInput.value = '';
+            dateInput.value = '';
+        });
+
+        // 식재료 삭제 함수
+        function deleteItem(id) {
+            foodItems = foodItems.filter(item => item.id !== id);
+            renderFoodList();
+        }
+
+        // AI 레시피 시뮬레이션
+        function generateRecipe() {
+            const recipeResult = document.getElementById('recipe-result');
+            
+            // D-3 이내인 재료 찾기
+            const urgentItems = foodItems.filter(item => {
+                const dDay = calculateDDay(item.date);
+                return dDay >= 0 && dDay <= 3;
+            }).map(item => item.name);
+
+            recipeResult.style.display = 'block';
+
+            if (urgentItems.length === 0) {
+                recipeResult.innerHTML = `
+                    <strong>✨ AI 추천 레시피</strong><br>
+                    현재 임박한 식재료가 없습니다! 보관 중인 아무 재료로 만들 수 있는 <b>'냉장고 파먹기 볶음밥'</b>을 추천합니다.
+                `;
+            } else {
+                recipeResult.innerHTML = `
+                    <strong>✨ AI 맞춤 추천 레시피</strong><br>
+                    소비가 시급한 <b>[${urgentItems.join(', ')}]</b>(을)를 활용한 <b>'${urgentItems[0]} 임박 재료 해결 자작 요리'</b>를 추천합니다!<br>
+                    <small>* 실제 서비스 연동 시 Open API를 통해 상세 조리법이 출력됩니다.</small>
+                `;
+            }
+        }
+
+        // 초기 실행
+        renderFoodList();
+    </script>
+</body>
+</html>
